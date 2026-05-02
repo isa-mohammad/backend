@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 // Extend the Express Request type to include the user object
 export interface AuthRequest extends Request {
-    user?: any;
+    user?: string | any;
 }
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -13,15 +13,15 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         if (!headers || !headers.startsWith('Bearer')) {
             return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
         }
-        
+
         const token = headers.split(' ')[1];
-        
+
         // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-        
-        // Attach the decoded payload to the request object
-        req.user = decoded;
-        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+
+        // Attach the user ID to the request object
+        req.user = decoded.id;
+
         next();
     } catch (error) {
         res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });

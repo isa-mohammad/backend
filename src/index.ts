@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
 import userRoutes from './routes/user.route';
+import hobbyRoutes from './routes/hobby.route';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 //routes
 app.use('/api/users', userRoutes);
+app.use('/api/hobbies', hobbyRoutes);
 
 // Global Error Handler Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
