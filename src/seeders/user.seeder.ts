@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/User';
 import Hobby from '../models/Hobby';
+import Food from '../models/Food';
 import connectDB from '../config/db';
+import { users, getHobbies, getFoods } from './const';
 
 // Load env vars so we have MONGO_URI
 dotenv.config();
@@ -10,57 +12,29 @@ dotenv.config();
 // Connect to the database
 connectDB();
 
-const users = [
-  {
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'admin',
-  },
-  {
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'user',
-  },
-  {
-    name: 'Bob Johnson',
-    email: 'bob@example.com',
-    role: 'user',
-  },
-];
-
 const seedDB = async () => {
   try {
-    // Delete existing users and hobbies to prevent duplicates
+    // Delete existing records to prevent duplicates
     await User.deleteMany();
     await Hobby.deleteMany();
-    console.log('Database cleared of existing users and hobbies');
+    await Food.deleteMany();
+    console.log('Database cleared of existing records (Users, Hobbies, Foods)');
 
-    // Insert new dummy users and capture the inserted documents
-    const createdUsers = await User.insertMany(users);
+    // Use User.create for the users array to trigger the pre-save password hashing hook
+    const createdUsers = await User.create(users);
     console.log('Dummy users successfully seeded!');
 
     // Create some hobbies tied to the newly created users
-    const hobbies = [
-      {
-        name: 'Photography',
-        description: 'Taking pictures of landscapes and wildlife',
-        user: createdUsers[0]._id, // John Doe
-      },
-      {
-        name: 'Coding',
-        description: 'Writing TypeScript and building web applications',
-        user: createdUsers[0]._id, // John Doe
-      },
-      {
-        name: 'Cooking',
-        description: 'Baking sourdough bread',
-        user: createdUsers[1]._id, // Jane Smith
-      },
-    ];
-
+    const hobbies = getHobbies(createdUsers);
     await Hobby.insertMany(hobbies);
     console.log('Dummy hobbies successfully seeded!');
 
+    // Create some foods tied to the newly created users
+    const foods = getFoods(createdUsers);
+    await Food.insertMany(foods);
+    console.log('Dummy foods successfully seeded!');
+
+    console.log('--- Seeding Completed Successfully ---');
     process.exit(0);
   } catch (error) {
     console.error('Error seeding database:', error);
