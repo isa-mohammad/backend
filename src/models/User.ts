@@ -6,6 +6,8 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   role: string;
+  resetPasswordOTP?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
@@ -34,6 +36,8 @@ const UserSchema: Schema = new Schema(
       enum: ['user', 'admin'],
       default: 'user',
     },
+    resetPasswordOTP: String,
+    resetPasswordExpires: Date,
   },
   {
     timestamps: true,
