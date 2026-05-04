@@ -1,22 +1,24 @@
 import nodemailer from 'nodemailer';
+import { MailtrapTransport } from 'mailtrap';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const TOKEN = process.env.MAILTRAP_TOKEN || '';
+
+const transporter = nodemailer.createTransport(
+  MailtrapTransport({
+    token: TOKEN,
+  })
+);
 
 export const sendOTP = async (email: string, otp: string) => {
   const mailOptions = {
-    from: `"HobbyHub" <${process.env.FROM_EMAIL}>`,
-    to: email,
+    from: {
+      address: process.env.FROM_EMAIL || 'hello@demomailtrap.co',
+      name: 'HobbyHub',
+    },
+    to: [email],
     subject: 'Password Reset OTP',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
